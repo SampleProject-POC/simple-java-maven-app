@@ -1,3 +1,5 @@
+//added the new line
+
 package com.mycompany.app;
 
 import java.io.ByteArrayOutputStream;
