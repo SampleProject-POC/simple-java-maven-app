@@ -1,4 +1,3 @@
-//Added for SCM jenkins build
 package com.mycompany.app;
 
 /**
