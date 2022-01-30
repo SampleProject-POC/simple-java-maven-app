@@ -1,4 +1,4 @@
-/*/Added for SCM jenkins build
+//Added for SCM jenkins build
 package com.mycompany.app;
 
 /**
