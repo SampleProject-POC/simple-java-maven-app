@@ -1,0 +1,96 @@
+pipeline{
+    agent any
+    tools {
+        maven 'maven 3.8.4'
+    }
+    stages{
+        stage("Code Checkout"){
+            steps{
+                echo "========Checkout code from GIT ========"
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/SampleProject-POC/simple-java-maven-app.git']]])
+            }
+            post{
+                success{
+                    echo "========A executed successfully========"
+                }
+                failure{
+                    echo "========A execution failed========"
+                }
+            }
+        }
+        stage("Execute shell script"){
+            steps{
+                 // echo "Branch Name :- $BRANCH_NAME"
+                  echo "Work Space :-$WORKSPACE"
+                  echo "Jenkins URL :-$JENKINS_URL"
+                  echo "Job Name :-$JOB_NAME"
+            }
+          
+
+        }
+        stage("Build jave code"){
+            steps{
+                echo "--------inside the scripts------"
+                sh 'mvn -DskipTests clean package'
+                echo "------Executed the scripts----"
+            }
+            post{
+                success{
+                    echo "-----Scripts execution success----"
+                }
+                failure{
+                    echo "-----Scripts execution failure---"
+                }
+            }
+        }
+        stage("Junit Test"){
+            steps{
+                sh 'mvn test'
+                echo "------Executed the Junit scripts----"
+            }
+            post{
+                success{
+                    echo "-----Junit Scripts execution success----"
+                    junit 'target/surefire-reports/*.xml'
+                }
+                failure{
+                    echo "-----Junit Scripts execution failure---"
+                }
+            }
+        }
+       stage("SonarQube") {
+            steps {
+                script {
+
+                    withSonarQubeEnv("SonarQube") {
+                        sh "${tool("SonarQube")}/bin/sonar-scanner \
+                        -Dsonar.projectKey=SonarQube \
+                        -Dsonar.sources=. \
+                        -Dsonar.java.binaries=target \
+                        -Dsonar.host.url=http://44.201.126.176:9000 \
+                        -Dsonar.login=31ab63dbd9dc3261751f2d857f39bdd033150670"
+                    }
+
+                }
+            }
+        }
+        stage ("Nexus Upload") {
+            steps {
+                sh "mvn -gs ${WORKSPACE}/settings.xml deploy"
+            }
+        }
+    
+    }
+    post{
+
+        success{
+            echo "========pipeline executed successfully ========"
+            archiveArtifacts artifacts: 'target/*.jar', followSymlinks: false
+            echo "========artifacts successfully ========"
+           // mail bcc: '', body: 'Jenkins Build successful', cc: '', from: '', replyTo: '', subject: 'Jenkins -Build ', to: 'sudhakarr2711@gmail.com'
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
