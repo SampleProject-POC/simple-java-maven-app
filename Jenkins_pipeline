@@ -64,7 +64,7 @@ pipeline{
 
                     withSonarQubeEnv("SonarQube") {
                         sh "${tool("SonarQube")}/bin/sonar-scanner \
-                        -Dsonar.projectKey=SonarQube \
+                        -Dsonar.projectKey=simple-java-maven-app \
                         -Dsonar.sources=. \
                         -Dsonar.java.binaries=target \
                         -Dsonar.host.url=http://44.201.126.176:9000 \
